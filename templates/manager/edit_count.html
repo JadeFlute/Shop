@@ -1,0 +1,72 @@
+{% extends 'common/base_manager.html' %}
+{% block content %}
+    <div class="x-body layui-anim layui-anim-up">
+        <form class="layui-form" method="get" action="{% url 'manager:do_edit_count' %}?gid={{ goods_obj.id }}"
+              enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="layui-form-item">
+                <label for="L_repass" class="layui-form-label">
+                    <span class="x-red">*</span>商品库存
+                </label>
+                <div class="layui-input-inline">
+                    <input type="text" id="L_repass" name="goods_count" required=""
+                           autocomplete="off" class="layui-input" value="{{ goods_obj.goods_count }}">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label for="L_repass" class="layui-form-label">
+                    {#                    <input type="hidden" value="{{ }}" name="id"/>#}
+                </label>
+                <button class="layui-btn" lay-filter="add" lay-submit="">
+                    修改
+                </button>
+                <input type="hidden" value="{{ goods_obj.id }}" id="gid">
+            </div>
+        </form>
+    </div>
+    <script>
+        layui.use(['form', 'layer'], function () {
+            $ = layui.jquery;
+            var form = layui.form
+                , layer = layui.layer;
+
+            var token = $('input[name=csrfmiddlewaretoken]').val()
+            var gid = $('#gid').val()
+            //监听提交
+            form.on('submit(add)', function (data) {
+                var count = $('#L_repass').val()
+                console.log(data);
+                //发异步，把数据提交给php
+                $.ajax({
+                    url: '{% url 'manager:do_edit_count' %}',
+                    data: {gid:gid,count: count, csrfmiddlewaretoken: token}, // json
+                    type: 'post',
+                    dataType: 'json',
+                    success: function (data, status, xhr) {
+                        if (data.status == 1) {
+                            layer.alert("修改成功", {icon: 6}, function () {
+                                // 获得frame索引
+                                var index = parent.layer.getFrameIndex(window.name);
+                                //关闭当前frame
+                                parent.layer.close(index);
+                                parent.location.reload()
+                            });
+                        } else {
+                            layer.alert("修改失败", {icon: 5}, function () {
+                                // 获得frame索引
+                                var index = parent.layer.getFrameIndex(window.name);
+                                //关闭当前frame
+                                parent.layer.close(index);
+                                parent.location.reload()
+                            });
+                        }
+                    }
+                })
+                return false;
+            });
+        });
+
+    </script>
+{% endblock %}

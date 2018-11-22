@@ -1,0 +1,28 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+{#    <link type="text/css" href="{% static 'css/bootstrap.css' %}" rel="stylesheet"/>#}
+    <link type="text/css" href="{% static 'css/index.css' %}" rel="stylesheet"/>
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+</head>
+<body>
+{% include 'common/header.html' %}
+ <div class="center_box">
+     <div class="cbbox_left">
+         <ul>
+             <li><a href="{% url 'user:user_order_manage' %}">我的订单</a></li>
+             <li><a href="{% url 'user:updatepass' %}">密码修改</a></li>
+             <li><a href="{% url 'user:receive_address' %}">收货地址</a></li>
+         </ul>
+     </div>
+     <div class="cbbox_right">
+        {% block bobx %}
+        {% endblock %}
+     </div>
+ </div>
+
+</body>
+</html>

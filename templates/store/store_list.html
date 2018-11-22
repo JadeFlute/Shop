@@ -1,0 +1,18 @@
+{% extends 'common/base.html' %}
+{% load static %}
+{% block content %}
+    <div class="goods_type">
+    {% for manager in manager_list %}
+        <div class="box_list">
+            <dl>
+                <dt><a href="{% url 'store:store_details' %}?mid={{ manager.id }}"><img src="{% static manager.shop_logo %}"/></a></dt>
+                    <dd>
+                        <p> <a href="{% url 'store:store_details' %}?mid={{ manager.id }}">{{manager.shop_name}}</a></p>
+                        <p>掌柜：{{manager.username}} <a href="{% url 'store:store_details' %}?mid={{ manager.id }}">进店>></a></p>
+
+                    </dd>
+                </dl>
+        </div>
+    {% endfor %}
+    </div>
+{% endblock %}

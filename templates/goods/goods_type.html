@@ -1,0 +1,31 @@
+{% extends 'common/base.html' %}
+{% load static %}
+{% block content %}
+    <div class="goods_type">
+        <div class="type_list">类别：
+           <a href="{% url 'goods:goods_type' %}">全部</a>
+            {% for goods_type in goods_type_list %}
+                    <a href="{% url 'goods:goods_type' %}?tid={{ goods_type.type_id }}">{{ goods_type.type_name }}</a>
+            {% endfor %}
+        </div>
+    <div class="type_list_box">
+  {% for goods in goods_list %}
+         <div class="box_list">
+                <dl>
+                    <dt><a href="{% url 'goods:goods_details' %}?gid={{ goods.id }}&b=123"><img src="{% static goods.goods_pic %}"/></a></dt>
+                    <dd>
+                        <p>
+                        {%if goods.goods_name|length >= 15 %}
+                            {{goods.goods_name|slice:"15"}}...
+                        {%else%}
+                            {{goods.goods_name}}
+                        {%endif%}
+                            </p>
+                        <p>￥{{ goods.goods_xprice }}元</p>
+                    </dd>
+                </dl>
+            </div>
+    {% endfor %}
+    </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends 'common/base.html' %}
+{% block bobx %}
+    <div class="xinzeng">新增收货人信息</div>
+    <form method="post" class="biaodan" action="{% url 'user:do_add_address' %}">
+        {% csrf_token %}
+        <div class="inp clearfix">
+            <label class="fl"><span>*</span>收货人</label>
+            <input type="text" class="fl" id="uname" name="name"/>
+        </div>
+        <div class="inp clearfix">
+            <label class="fl"><span>*</span>详细地址</label>
+            <input type="text" class="kuan fl" id="dizhi" name="address"/>
+        </div>
+        <div class="inp clearfix">
+            <label class="fl"><span>*</span>手机号码</label>
+            <input type="text" class="fl" id="tel" name="phone"/>
+        </div>
+        <input type="submit" id="btn" value="保存收货人信息" class="btn"/>
+    </form>
+
+{% endblock %}

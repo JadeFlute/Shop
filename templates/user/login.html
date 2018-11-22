@@ -1,0 +1,91 @@
+{% extends 'common/base.html' %}
+{% load static %}
+{% block content %}
+<div class="users_box">
+    <div class="users_box_top">会员登录</div>
+    <div class="users_box_bottom">
+        <div class="box_bottom_left"><img src="{% static 'images/huiyuan.jpg' %}"/></div>
+        <div class="box_bottom_right">
+
+            <form method="post" action="{% url 'user:do_login' %}">
+                {% csrf_token %}
+                <div>
+                    昵称：<input type="text" name="username" placeholder="请输入昵称" class="input"/>
+                </div>
+                <div>
+                    密码：<input type="password" name="password" placeholder="请输入密码" class="input"/>
+                </div>
+                <div>
+                    验证码：<input type="text" name="code" id="code" placeholder="验证码" class="input" onblur="check_code()"/>
+                    <img src="{% url 'user:create_code' %}" alt="code" id="code_img" width="80" height="30" onclick="reload_code()">
+                </div>
+                <div>
+                    <input type="submit" value="登录" class="gouwu" onclick="check_submit()" id="login_submit"/>
+{#                    <input type="submit" value="注册会员" class="gouwu zhuce"/>#}
+                    <input type="hidden" id="submit_judge" value="0">
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+    <script>
+{#刷新验证码#}
+        function reload_code() {
+            var temp = new Date().getTime();
+            $('#code_img').attr('src','{% url "user:create_code" %}?t='+temp)
+        }
+
+{#        验证码框失去焦点时，检查验证码是否正确，同时在隐藏域中记录检查结果  #}
+        function check_code() {
+            var code = $('#code').val();
+            var token = $('input[name=csrfmiddlewaretoken]').val();
+
+            $.ajax({
+                url:'{% url "user:check_code" %}',
+                data:{code:code,csrfmiddlewaretoken:token},
+                type:'post',
+                dataType:'json',
+{#               这里需要同步（关闭异步）：异步的时候，check_submit函数在一个进程执行（先执行）；#}
+{#            ajax被触发时，check_login_code函数在另一个进程被执行（后执行）。会导致逻辑错误  #}
+                async:false,
+
+                success:function (data,status,xhr) {
+{#                    var flag = false#}
+                    if(data.status == 0){
+                        alert(data.msg)
+                        return false
+                    }else{
+                        alert(data.msg)
+{#                        flag = true#}
+                        $('#submit_judge').val(1);
+                        return false
+                    }
+                }
+            })
+        }
+
+{#       首先检查用户名和密码；然后根据之前检查验证码的结果，来决定是否提交             #}
+        function check_submit() {
+            var username = $('#username').val();
+            var password = $('#password').val();
+
+            if(username == '' || password == ''){
+                alter('用户名或密码为空')
+                return false
+            }
+
+            if($('#submit_judge').val() == 1){
+                $('#login_submit').submit()
+            }else{
+                alert('验证码错误')
+                return false
+            }
+
+        }
+
+
+    </script>
+
+{% endblock %}

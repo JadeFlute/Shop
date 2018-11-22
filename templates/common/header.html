@@ -1,0 +1,27 @@
+<div class="header">
+
+    <ul>
+        <li><a href="#">[购物车]</a></li>
+        {% if request.session.u_name %}
+        <li>欢迎：{{ request.session.u_name }} <a href="{% url 'user:do_logout' %}">注销账号</a></li>
+        {% else %}
+            <li><a href="{% url 'manager:openstore' %}">[商家开店注册]</a></li>
+            <li><a href="{% url 'manager:login' %}">[商家登录]</a></li>
+             <li><a href="{% url 'user:register' %}" target="_blank">[用户注册]</a></li>
+            <li><a href="{% url 'user:login' %}">[用户登录]</a></li>
+
+        {% endif %}
+    </ul>
+
+</div>
+<div class="header_logo">
+    <div class="logo"></div>
+    <div class="nav">
+        <ul>
+            <li><a href="{% url 'goods:index' %}">首页<br/>Home</a></li>
+            <li><a href="{% url 'goods:goods_type' %}">商品分类<br/>Fruit</a></li>
+            <li><a href="{% url 'user:user_order_manage' %}">用户中心<br/>VIP Club</a></li>
+            <li><a href="{% url 'store:store_list' %}">商铺列表<br/>store</a></li>
+        </ul>
+    </div>
+</div>

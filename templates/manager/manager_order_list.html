@@ -1,0 +1,122 @@
+{% extends 'common/base_manager.html' %}
+{% load static %}
+{% block content %}
+    <div class="x-nav">
+      <span class="layui-breadcrumb">
+        <a href="">订单管理</a>
+        <a href="">订单列表</a>
+      </span>
+    </div>
+
+
+        <div class="x-body">
+
+        <div class="layui-row">
+            <form class="layui-form layui-col-md12 x-so" action="#" method="get">
+                {% csrf_token %}
+                <input type="text" name="order_code" value="{{ view_where.order_code }}" placeholder="请输入单号"
+                       autocomplete="off" class="layui-input">
+                <div class="layui-input-inline">
+                    <select name="pay_status">
+                        <option value="99">支付状态</option>
+                        <option {% if view_where.pay_status == '1' %} selected {% endif %}  value="1">已支付</option>
+                        <option {% if view_where.pay_status == '0' %} selected {% endif %} value="0">未支付</option>
+                    </select>
+                </div>
+
+                <div class="layui-input-inline">
+                    <select name="send_status">
+                        <option value="99">发货状态</option>
+                        <option {% if view_where.send_status == '1' %} selected {% endif %} value="1">已发货</option>
+                        <option {% if view_where.send_status == '0' %} selected {% endif %} value="0">未发货</option>
+                    </select>
+                </div>
+                <button class="layui-btn" lay-submit="" lay-filter="sreach"><i class="layui-icon">&#xe615;</i></button>
+            </form>
+        </div>
+
+
+    <div class="x-body">
+        <table class="layui-table">
+            <thead>
+            <tr>
+
+                <th>订单编号</th>
+                <th>订单金额</th>
+                <th>下单时间</th>
+                <th>订单状态</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for order in order_list %}
+                <tr>
+
+                    <td>{{ order.order_code }}</td>
+                    <td>{{ order.money }}</td>
+                    <td>{{ order.add_time|date:"Y-m-d H:i:s" }}</td>
+                    <td>
+                        {% if order.pay_status == 1 %}
+                            {% if order.send_status == 1 %}
+                                已发货
+                                {% if order.receive_status == 1 %}
+                                    已收货
+                                {% else %}
+                                    未收货
+                                {% endif %}
+                            {% else %}
+                                未发货
+                            {% endif %}
+                        {% else %}
+                            未付款
+                        {% endif %}
+
+                    </td>
+                    <td>
+                        <a href="{% url 'manager:order_info' %}?order_id={{ order.id }}">查看订单详情</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="10" align="center">暂无订单</td>
+                </tr>
+            {% endfor %}
+             <tr>
+                <td colspan="10" align="right">总收入：￥{{ mm.total|floatformat:2 }}元</td>
+            </tr>
+            </tbody>
+        </table>
+        <div class="page">
+            <div>
+
+
+{#                  判断：如果有上一页， 才显示 上一页 功能按钮 ，否则不显示 #}
+                {% if order_list.has_previous %}
+{#                    在第一个a标签中显示<<,同时添加上一页的功能按钮  #}
+                    <a class="prev"
+                       href="{% url 'manager:manager_order_list' %}?{{ url_where }}&p={{ order_list.previous_page_number }}">&lt;&lt;</a>
+                {% endif %}
+
+            {#   通过page_range获取所有页数，然后遍历生成页数按钮         #}
+                {% for page_num in order_list.paginator.page_range %}
+{#                    遍历的时候，将选中的页数加一个样式，else：正常显示  #}
+                    {% if order_list.number == page_num %}
+                        <span class="current">{{ page_num }}</span>
+                    {% else %}
+                        <a class="num"
+                           href="{% url 'manager:manager_order_list' %}?{{ url_where }}&p={{ page_num }}">{{ page_num }}</a>
+                    {% endif %}
+                {% endfor %}
+
+            {# 判断：如果有下一页， 才显示 下一页 功能按钮 ，否则不显示 #}
+                {% if order_list.has_next %}
+                    <a class="next"
+                       href="{% url 'manager:manager_order_list' %}?{{ url_where }}&p={{ order_list.next_page_number }}">&gt;&gt;</a>
+                {% endif %}
+
+
+            </div>
+        </div>
+
+    </div>
+{% endblock %}

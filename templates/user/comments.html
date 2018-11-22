@@ -1,0 +1,63 @@
+{% extends 'common/user_base.html' %}
+{% load static %}
+{% block bobx %}
+    <script src="{% static 'js/jquery.js' %}"></script>
+    <script src="{% static 'js/jquery.raty.min.js' %}"></script>
+
+    <div class="comment_box">
+
+        <form method="post" action="{% url 'user:do_comment' %}" class="form-horizontal" role="form">
+            {% csrf_token %}
+
+            {% for order_goods in order_goods_list %}
+                <div class="form-group">
+                    <div class="col-sm-7">
+                        <label for="firstname" class="col-sm-2 control-label">商品名称:</label>
+                        {{ order_goods.goods.goods_name }}
+                    </div>
+                </div>
+                    <br/><br/>
+                <div class="form-group">
+                    <label for="firstname" class="col-sm-2 control-label">评分</label>
+                    <br/>
+                    <div class="col-sm-7">
+                        {#                显示评分的星星  #}
+                        <div id="star{{ order_goods.goods_id }}"></div>
+                    </div>
+                </div>
+                    <br/><br/>
+                <div class="form-group">
+                    <label for="firstname" class="col-sm-2 control-label">评价内容</label>
+                    <br/>
+                    <div class="col-sm-7">
+                        <textarea class="form-control" rows="8" cols="80"
+                                  name="comment_content{{ order_goods.goods_id }}"></textarea>
+                    </div>
+                </div>
+
+{#                评分星星的js  #}
+                <script>
+                    $('#star' + {{ order_goods.goods_id }}).raty({
+                        path: '/static/images/',
+{#                        用来获取评分的name  #}
+                        scoreName: "score{{ order_goods.goods_id }}"
+                    });
+                </script>
+
+                <input type="hidden" name="goods_id" value="{{ order_goods.goods_id }}">
+                <input type="hidden" name="order_id" value="{{ order_goods.order_id }}">
+
+            {% endfor %}
+                <br/><br/>
+            <div class="form-group">
+                <label for="firstname" class="col-sm-2 control-label"></label>
+                <div class="col-sm-5">
+                    <input type="submit" class="btn btn-success" value="评价商品"/>
+                </div>
+            </div>
+
+
+        </form>
+    </div>
+
+{% endblock %}

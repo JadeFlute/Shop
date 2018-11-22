@@ -1,0 +1,115 @@
+{% extends 'common/base_manager.html' %}
+{% load static %}
+{% block content %}
+
+    <div class="x-nav">
+      <span class="layui-breadcrumb">
+        <a href="">商品管理</a>
+        <a href="">已评价</a>
+      </span>
+    </div>
+    <div class="x-body">
+
+        <div class="layui-row">
+            <form class="layui-form layui-col-md12 x-so" action="#" method="get" id="form">
+                {% csrf_token %}
+
+                <div class="layui-input-inline">
+                    <select name="score">
+                        <option value="99">评分</option>
+                        <option {% if view_where.score == '1' %} selected {% endif %}  value="1">1星</option>
+                        <option {% if view_where.score == '2' %} selected {% endif %} value="2">2星</option>
+                        <option {% if view_where.score == '3' %} selected {% endif %} value="3">3星</option>
+                        <option {% if view_where.score == '4' %} selected {% endif %} value="4">4星</option>
+                        <option {% if view_where.score == '5' %} selected {% endif %} value="5">5星</option>
+                    </select>
+                </div>
+
+
+                <button class="layui-btn" lay-submit="" lay-filter="sreach"><i class="layui-icon">&#xe615;</i></button>
+            </form>
+        </div>
+        <table class="layui-table">
+            <thead>
+            <tr>
+
+                <th>商品名称</th>
+                <th>用户</th>
+                <th>评分</th>
+                <th>评价时间</th>
+                <th>评价内容</th>
+
+            </tr>
+            </thead>
+            <tbody>
+            {% for comment in comment_list %}
+                <tr>
+
+                    <td>{{ comment.goods.goods_name }}</td>
+                    <td>{{ comment.users.username }}</td>
+                    <td>{{ comment.score }}</td>
+                    <td>{{ comment.add_time|date:"Y-m-d H:i:s" }}</td>
+                    <td>{{ comment.content }}</td>
+
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="10" align="center">暂无评价</td>
+                </tr>
+            {% endfor %}
+            <tr>
+                <td colspan="10" align="right">总收入：￥{{ mm.total|floatformat:2 }}元</td>
+            </tr>
+            </tbody>
+        </table>
+        <div class="page">
+            <div>
+                {% if comment_list.has_previous %}
+                    <a class="prev"
+                       href="{% url 'manager:comment_checked' %}?{{ url_where }}&p={{ comment_list.previous_page_number }}">&lt;&lt;</a>
+                {% endif %}
+                {% for page_num in comment_list.paginator.page_range %}
+                    {% if comment_list.number == page_num %}
+                        <span class="current">{{ page_num }}</span>
+                    {% else %}
+                        <a class="num"
+                           href="{% url 'manager:comment_checked' %}?{{ url_where }}&p={{ page_num }}">{{ page_num }}</a>
+                    {% endif %}
+                {% endfor %}
+
+
+                {% if comment_list.has_next %}
+                    <a class="next"
+                       href="{% url 'manager:comment_checked' %}?{{ url_where }}&p={{ comment_list.next_page_number }}">&gt;&gt;</a>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+
+{#    <script>#}
+{#        function check_comment(id) {#}
+{#            var token = $('input[name=csrfmiddlewaretoken]').val()#}
+{#            $.ajax({#}
+{#                url: '{% url 'manager:edit_check_status' %}',#}
+{#                data: {comment_id: id, csrfmiddlewaretoken: token}, // json#}
+{#                type: 'post',#}
+{#                dataType: 'json',#}
+{#                success: function (data, status, xhr) {#}
+{#                    console.log(data)#}
+{#                    if (data.status == 0) {#}
+{#                        alert(data.msg)#}
+{#                    } else {#}
+{#                        alert(data.msg)#}
+                        {#$('#receive_' + id).remove()#}
+{#                        window.location.reload()#}
+{#                    }#}
+{#                }#}
+{#            })#}
+{##}
+{#        }#}
+{#    </script>#}
+
+
+
+{% endblock %}

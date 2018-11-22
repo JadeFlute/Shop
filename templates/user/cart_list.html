@@ -1,0 +1,199 @@
+{% extends 'common/base.html' %}
+{% load static %}
+{% block content %}
+    <div class="cart_list">
+        <form method="post" action="{% url 'user:order_details' %}">
+            {% csrf_token %}
+            <div class="cart_top">我的购物车</div>
+            <div class="cart_listbox">
+                <table width="100%" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <th>商品名称</th>
+                        <th>商品缩略图</th>
+                        <th>商品单价</th>
+                        <th>商品数量</th>
+                        <th>商品小计</th>
+                        <th>操作</th>
+                    </tr>
+
+
+                    {% for car in car_list %}
+
+                        <tr id="tr_{{ car.goods_id }}" class="tr_car">
+                            <td><a href="#" id="ele_total">{{ car.goods.goods_name }}</a></td>
+                            <td><a href="#"><img src="{% static car.goods.goods_pic %}"/></a></td>
+                            <td>￥<span id="x_price_{{ car.goods_id }}">{{ car.goods.goods_xprice }}</span></td>
+                            <td><input type="button" name="-" value="-" class="btn1"
+                                       onclick="num('reduce',{{ car.goods.id }})"/>
+                                <input type="text" value="{{ car.number }}" id="number_{{ car.goods_id }}" name="count"
+                                       class="text1"/>
+                                <input type="button" name="+" value="+" class="btn1"
+                                       onclick="num('add',{{ car.goods.id }})"/>
+                            </td>
+                            <td>￥<span id="s_price_{{ car.goods_id }}">{% widthratio car.goods.goods_xprice 1 car.number %}</span></td>
+                            <td><a href="javascript:void(0)" onclick="car_del({{ car.goods_id }})">删除</a></td>
+                            <input type="hidden" name="goods_id" id="goods_id_{{ car.goods_id }}"
+                                   value="{{ car.goods.id }}">
+                        </tr>
+
+                        <tr style="display: block" id="car_empty">
+                            {% empty %}
+                            <td colspan="6" style="text-align: center;">购物车空空如也~~，请快去购物吧！</td>
+                        </tr>
+                    {% endfor %}
+
+
+                </table>
+                <div class="goon">
+                    <div class="clearcart">
+                        <input type="button" value="清空购物车" class="btn" id="car_disabled" onclick="car_clear()"/>
+                    </div>
+                    <div class="totalprice">
+                        总计：￥<span id="t_price">0</span>元
+                    </div>
+
+                </div>
+
+                <div class="jxgg">
+                    <a href="{% url 'goods:index' %}">继续逛逛</a>
+                </div>
+                <div class="order">
+                    <input type="submit" value="立即下单" class="btn"/>
+                </div>
+            </div>
+        </form>
+    </div>
+
+
+    <script>
+    
+
+{#窗口加载时调用的函数#}
+$(function () {
+    total_price();
+    car_empty();
+});
+
+{#计算总价的函数#}
+function total_price() {
+    var total = 0;
+    $('span[id*=s_price_]').each(function (obj,ev) {
+        total += Number($(this).html())
+    });
+    $('#t_price').html(total)
+}
+
+{#判断商品小计的个数，来控制清空购物车按钮是否可用 和 ‘空空如也’是否显示#}
+function car_empty() {
+    if($('#ele_total').length == 0){
+        $('#car_disabled').attr('disabled',true);
+        $('#car_empty').append('<td colspan="6" style="text-align: center;">购物车空空如也~~，请快去购物吧！</td>')
+{#        $('#car_empty').css('display','block');#}
+    }else{
+        $('#car_disabled').attr('disabled',false);
+{#        $('#car_empty').css('display','none');#}
+    }
+}
+
+{#计算商品数量#}
+    function num(alg,gid) {
+        var goods_id = $('#goods_id_'+gid).val();
+        var number = $('#number_'+gid).val();
+        var n = $('#number_'+gid).val();
+        var token = $('input[name=csrfmiddlewaretoken]').val();
+        var price = $('#x_price_'+gid).html();
+
+        if(alg == 'reduce'){
+            if(n>2){
+                n--;
+            }
+        }else if(alg == 'add'){
+            n++;
+        }
+        $('#number_{{ car.goods_id }}').val(n)
+
+        $.ajax({
+            url:'{% url 'user:edit_num' %}',
+            data:{goods_id:goods_id,number:number,csrfmiddlewaretoken:token,alg:alg},
+            type:'post', //发送数据给django时的传输方法
+            dataType:'json', //django发送过来的数据类型
+
+            success:function (data,status,xhr) {
+                if(data.status == 0){
+                    alert(data.msg)
+                }else if(data.status == 2){
+                    alert(data.msg);
+                    window.location.href = data.login_url;
+                }else if(data.status == 3){
+                    alert(data.msg);
+                }else{
+                    $('#number_'+gid).val(data.numb);
+                    $('#s_price_'+gid).html(data.numb*Number(price));
+                    total_price();
+{#                    alert(data.msg);#}
+                }
+            }
+        })
+    }
+
+{#删除商品#}
+    function car_del(gid) {
+        var goods_id = $('#goods_id_'+gid).val();
+        var token = $('input[name=csrfmiddlewaretoken]').val();
+
+        $.ajax({
+            url:'{% url 'user:car_del' %}',
+            data:{goods_id:goods_id,csrfmiddlewaretoken:token},
+            type:'post', //发送数据给django时的传输方法
+            dataType:'json', //django发送过来的数据类型
+
+            success:function (data,status,xhr) {
+                if(data.status == 0){
+                    alert(data.msg)
+                }else if(data.status == 2){
+                    alert(data.msg);
+                    window.location.href = data.login_url;
+                }else{
+                    $('#tr_'+gid).remove();
+                    total_price();
+                    car_empty();
+{#                    alert(data.msg);#}
+{#                    window.location.reload();#}
+
+                }
+            }
+        })
+    }
+
+{#清空购物车#}
+    function car_clear() {
+        var token = $('input[name=csrfmiddlewaretoken]').val();
+
+        $.ajax({
+            url:'{% url 'user:car_clear' %}',
+            data:{csrfmiddlewaretoken:token},
+            type:'post', //发送数据给django时的传输方法
+            dataType:'json', //django发送过来的数据类型
+
+            success:function (data,status,xhr) {
+                if(data.status == 0){
+                    alert(data.msg)
+                }else if(data.status == 2){
+                    alert(data.msg);
+                    window.location.href = data.login_url;
+                }else{
+                    $('.tr_car').remove();
+                    total_price();
+                    car_empty();
+{#                    window.location.reload();#}
+{#                    alert(data.msg);#}
+                }
+            }
+        })
+    }
+
+
+    </script>
+    
+
+{% endblock %}

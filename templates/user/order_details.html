@@ -1,0 +1,61 @@
+{% extends 'common/base.html' %}
+{% load static %}
+{% block content %}
+    <form method="post" action="{% url 'user:do_place_order' %}">
+        {% csrf_token %}
+        <div class="cart_list">
+            <div class="cart_top">填写并核对订单信息</div>
+            <div class="cart_listbox">
+                <p>收货人信息 <a href="{% url 'user:add_address' %}">新增收货地址</a></p>
+                {% for address in address_list %}
+                    <p style="line-height: 50px;">
+                        <input type="radio" value="{{ address.id }}" name="address_id"
+                               checked/> {{ address.name }} {{ address.phone }} {{ address.address }}
+                    </p>
+                {% endfor %}
+
+            </div>
+            <div class="cart_top">配送信息</div>
+            <div class="cart_listbox">
+                <table width="100%" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <th>商品名称</th>
+                        <th>商品缩略图</th>
+                        <th>商品单价</th>
+                        <th>商品数量</th>
+                        <th>商品小计</th>
+                    </tr>
+                    {% for cart in car_list %}
+
+                        {% csrf_token %}
+                        <tr>
+                            <td><a href="#">{{ cart.goods.goods_name }}</a></td>
+                            <td><a href="#"><img src="{% static cart.goods.goods_pic %}"/></a></td>
+                            <td>￥{{ cart.goods.goods_xprice }}元</td>
+                            <td>{{ cart.number }}</td>
+                            <td>￥{% widthratio cart.goods.goods_xprice 1 cart.number %}</td>
+
+                        </tr>
+                    {% endfor %}
+                    <tr>
+                        <td colspan="5" style="text-align: right; padding-right: 10px;"><a
+                                href="{% url 'user:car_list' %}">返回购物车修改</a></td>
+                    </tr>
+                    <tr>
+                        <td colspan="5" style="text-align: right; padding-right: 10px;">
+                            总计：￥{{ total_money }}元
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="5" style="text-align: right; padding-right: 10px;">
+                            <input type="hidden" value="{{ sum_score.total }}" name="total"/>
+                            <input type="submit" value="提交订单" class="btn"/></td>
+                    </tr>
+                </table>
+
+            </div>
+
+
+        </div>
+    </form>
+{% endblock %}

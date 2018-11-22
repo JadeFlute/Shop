@@ -1,0 +1,138 @@
+{% extends 'common/base_manager.html' %}
+{% load static %}
+{% block content %}
+
+
+    <div class="x-nav">
+      <span class="layui-breadcrumb">
+        <a href="">商品管理</a>
+        <a href="">商品列表</a>
+      </span>
+        <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right"
+           href="javascript:location.replace(location.href);" title="刷新">
+            <i class="layui-icon" style="line-height:30px">ဂ</i></a>
+    </div>
+    <div class="x-body">
+
+
+        <div class="layui-row">
+            <form class="layui-form layui-col-md12 x-so" action="#" method="get">
+                {% csrf_token %}
+                <input type="text" name="user_name" value="{{ view_where.user_name }}" placeholder="用户名"
+                       autocomplete="off" class="layui-input">
+                <input type="text" name="shop_name" value="{{ view_where.shop_name }}" placeholder="店铺名称"
+                       autocomplete="off" class="layui-input">
+                <div class="layui-input-inline">
+                    <select name="role">
+                        <option value="99">角色</option>
+                        {% for role in role_list %}
+                            <option {% if view_where.role_id == role.id %} selected {% endif %}
+                                                                        value="{{ role.id }}">{{ role.name }}</option>
+                        {% endfor %}
+
+                        {#                        <option {% if view_where.pay_status == '0' %} selected {% endif %} value="0">未支付</option>#}
+                    </select>
+                </div>
+                <button class="layui-btn" lay-submit="" lay-filter="sreach"><i class="layui-icon">&#xe615;</i></button>
+            </form>
+        </div>
+        <xblock>
+
+            <button class="layui-btn" onclick="x_admin_show('添加用户','./member-add.html',600,400)"><i
+                    class="layui-icon"></i>添加
+            </button>
+            {#            <span class="x-right" style="line-height:40px">共有数据：88 条</span>#}
+        </xblock>
+
+        <table class="layui-table">
+            <thead>
+            <tr>
+                <th>用户ID</th>
+                <th>用户名</th>
+                <th>昵称</th>
+                <th>店铺名称</th>
+                <th>店铺logo</th>
+                <th>用户角色</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for member in list %}
+                <tr>
+                    <td>{{ member.id }}</td>
+                    <td>{{ member.username }}</td>
+                    <td>{{ member.nickname }}</td>
+                    <td>{{ member.shop_name }}</td>
+                    <td><img src="{% static member.shop_logo %}" width="50px" height="50px"></td>
+                    <td>{{ member.role.name }}</td>
+                    <td>
+
+                        <a title="编辑"
+                           onclick="x_admin_show('编辑用户','{% url 'manager:member_edit' %}?member_id={{ member.id }}',600,400)"
+                           href="javascript:;">
+                            <i class="layui-icon">&#xe642;</i>
+                        </a>
+                        <a title="删除" onclick="member_del(this,'{{ member.id }}')" href="javascript:;">
+                            <i class="layui-icon">&#xe640;</i>
+                        </a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="8" align="center">没有用户！！！</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <div class="page">
+            <div>
+                {% if list.has_previous %}
+                    <a class="prev"
+                       href="{% url 'manager:member_list' %}?{{ url_where }}&p={{ list.previous_page_number }}">&lt;&lt;</a>
+                {% endif %}
+                {% for page_num in list.paginator.page_range %}
+                    {% if list.number == page_num %}
+                        <span class="current">{{ page_num }}</span>
+                    {% else %}
+                        <a class="num"
+                           href="{% url 'manager:member_list' %}?{{ url_where }}&p={{ page_num }}">{{ page_num }}</a>
+                    {% endif %}
+                {% endfor %}
+
+                {% if list.has_next %}
+                    <a class="next"
+                       href="{% url 'manager:member_list' %}?{{ url_where }}&p={{ list.next_page_number }}">&gt;&gt;</a>
+                {% endif %}
+
+
+            </div>
+        </div>
+
+    </div>
+
+           <script>
+            function member_del(obj, id) {
+                console.log(obj,id)
+                layer.confirm('确认要删除吗？', function (index) {
+                    //发异步删除数据 ajax
+                    $.ajax({
+                        url: '{% url 'manager:member_del' %}',
+                        data: {id: id}, // json
+                        type: 'get',
+                        dataType: 'json',
+                        success: function (data, status, xhr) {
+                            if (data.status == 1) {
+                                $(obj).parents("tr").remove();
+                                layer.msg('已删除!', {icon: 1, time: 1000});
+                            } else {
+                                layer.msg(data.msg, {icon: 2, time: 1000});
+                            }
+                        }
+                    })
+
+                });
+            }
+        </script>
+
+
+{% endblock %}

@@ -1,0 +1,202 @@
+{% extends 'common/base.html' %}
+{% load static %}
+{% block content %}
+<div class="users_box">
+    <div class="users_box_top">会员注册</div>
+    <div class="users_box_bottom">
+        <div class="box_bottom_left"><img src="{% static 'images/huiyuan.jpg' %}"/></div>
+        <div class="box_bottom_right">
+
+            <form method="post" action="{% url 'user:do_register' %}" id="reg_submit">
+                {% csrf_token %}
+                <div>
+                    昵&nbsp;&nbsp;称：<input type="text" id="username" name="username" placeholder="请输入昵称" class="input"/>
+                </div>
+                <div>
+                    密&nbsp;&nbsp;码：<input type="password" id="password" name="password" placeholder="请输入密码" class="input"/>
+                </div>
+                <div>
+                    重复密码：<input type="password" id="password2" name="password2" placeholder="请输入密码" class="input"/>
+                </div>
+                <div>
+                    电子邮箱：<input type="text" id="email" name="email" placeholder="请输入邮箱" class="input"/>
+                </div>
+                <div>
+                    验证码：<input type="text" name="code" id="code" placeholder="验证码" class="input" onblur="check_code()"/>
+                    <img src="{% url 'user:create_code' %}" alt="code" id="code_img" width="80" height="30" onclick="reload_code()">
+                </div>
+
+                <div>
+{#                    <input type="submit" value="登录" class="gouwu"/>#}
+                    <input type="button" id="reg_btn" value="注册会员" class="gouwu zhuce" onclick="check_submit()"/>
+                    <input type="hidden" id="submit_judge" value="0">
+                </div>
+                <input type="hidden" id="code_judge" value="0">
+            </form>
+
+        </div>
+    </div>
+</div>
+
+{#      <script>#}
+{#        // 整体验证#}
+{#          $('#reg_btn').click(function () {#}
+{#                 var username = $('#username').val();#}
+{#                 var password = $('#password').val();#}
+{#                 var password2 = $('#password2').val();#}
+{#                 var code = $('#code').val();#}
+{#                 var token = $('input[name=csrfmiddlewaretoken]').val();#}
+{#                 console.log(code)#}
+{##}
+{#                 if(username=='' || password=='' || password2=='' || code==''){#}
+{#                    alert('不能为空')#}
+{#                     return false#}
+{#                 }#}
+{#                 if(code.length != 5){#}
+{#                    alert('验证码长度不为5')#}
+{#                 }#}
+{#                 if(password != password2){#}
+{#                    alert('两次输入的密码不同')#}
+{#                 }#}
+{##}
+{#         $.ajax({#}
+{#            url:'{% url "user:check_code" %}',#}
+{#            data:{#}
+{#                username:username,#}
+{#                password:password,#}
+{#                password2:password2,#}
+{#                code:code,#}
+{#                csrfmiddlewaretoken:token#}
+{#             },#}
+{#             type:'post',#}
+{#             dataType:'json',#}
+{#             async:false,#}
+{##}
+{#             success:function (data,status,xhr) {#}
+{#                console.log(data)#}
+{#                 if(data.status == 1){#}
+{#                        alert(data.msg);#}
+{#                        return false;#}
+{#                    }else if(data.status == 2){#}
+{#                        alert(data.msg);#}
+{#                        return false;#}
+{#                    }else if(data.status == 3){#}
+{#                        alert(data.msg);#}
+{#                        return false;#}
+{#                    }else if(data.status == 4){#}
+{#                        alert(data.msg);#}
+{#                        return false;#}
+{#                    }else{#}
+{#                        alert(data.msg);#}
+{#                        $('#reg_submit').submit();#}
+{#                        window.location.href = "{% url 'user:login' %}";#}
+{#                        return false;#}
+{#                 }#}
+{#             }#}
+{#             })#}
+{#              })#}
+{##}
+{##}
+{#      单击验证码，刷新出新的验证码（指向相同url，不能刷新；所以在后面加个时间戳，可以使其刷新）  #}
+{#      $('#code_img').click(function () {#}
+{#          获得时间戳  #}
+{#          var temp = new Date().getTime();#}
+{#          $('#code_img').attr('src',"{% url 'user:create_code' %}?t=" + temp)#}
+{#      })#}
+{##}
+{##}
+{#      </script>#}
+
+
+{#先检查验证码，再检查用户名，密码，邮箱#}
+<script>
+{#刷新验证码#}
+        function reload_code() {
+            var temp = new Date().getTime();
+            $('#code_img').attr('src','{% url "user:create_code" %}?t='+temp)
+        }
+
+{#        验证码框失去焦点时，检查验证码是否正确，同时在隐藏域中记录检查结果  #}
+        function check_code() {
+            var code = $('#code').val();
+            var token = $('input[name=csrfmiddlewaretoken]').val();
+
+            $.ajax({
+                url:'{% url "user:check_code" %}',
+                data:{code:code,csrfmiddlewaretoken:token},
+                type:'post',
+                dataType:'json',
+{#               这里需要同步（关闭异步）：异步的时候，check_submit函数在一个进程执行（先执行）；#}
+{#            ajax被触发时，check_login_code函数在另一个进程被执行（后执行）。会导致逻辑错误  #}
+                async:false,
+
+                success:function (data,status,xhr) {
+{#                    var flag = false#}
+                    if(data.status == 0){
+                        alert(data.msg)
+                        return false
+                    }else{
+                        alert(data.msg)
+{#                        flag = true#}
+                        $('#submit_judge').val(1);
+                        return false
+                    }
+                }
+            })
+        }
+
+{#       首先检查用户名和密码；然后根据之前检查验证码的结果，来决定是否提交             #}
+        function check_submit() {
+             var username = $('#username').val();
+             var password = $('#password').val();
+             var password2 = $('#password2').val();
+             var email = $('#email').val();
+             var token = $('input[name=csrfmiddlewaretoken]').val();
+             console.log(code)
+
+             if(username=='' || password=='' || password2=='' || email==''){
+                alert('不能为空')
+                 return false
+             }
+             if(password != password2){
+                alert('两次输入的密码不同')
+             }
+
+        $.ajax({
+            url:'{% url "user:check_code" %}',
+            data:{
+                username:username,
+                password:password,
+                password2:password2,
+                csrfmiddlewaretoken:token
+             },
+             type:'post',
+             dataType:'json',
+             async:false,
+
+             success:function (data,status,xhr) {
+                 if(data.status == 0 || data.status == 1 || data.status == 2 || data.status == 3 || data.status == 4){
+                        alert(data.msg);
+                        return false;
+                    }
+                }
+             })
+
+{#             提交判断   #}
+            if($('#submit_judge').val() == 1){
+                $('#reg_submit').submit()
+{#                window.location.href = '{% url 'user:activate' %}'#}
+                return false
+            }else{
+                alert('验证码错误')
+                return false
+            }
+
+        }
+
+
+    </script>
+
+
+
+{% endblock %}

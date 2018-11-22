@@ -1,0 +1,18 @@
+{% extends 'common/base.html' %}
+{% load static %}
+{% block content %}
+    <form method="post" action="{% url 'user:do_place_order' %}">
+        {% csrf_token %}
+        <div class="cart_list">
+            <div class="cart_listbox">
+
+                <p>收货人信息 <a href="{% url 'user:add_address' %}">新增收货地址</a></p>
+                {% for address in address_list %}
+                    <p style="line-height: 50px;">
+                        <input type="radio" value="{{ address.id }}" name="address_id"
+                               checked/> {{ address.name }} {{ address.phone }} {{ address.address }}
+                    </p>
+                {% endfor %}
+
+            </div>
+{% endblock %}

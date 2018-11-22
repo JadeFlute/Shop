@@ -1,0 +1,37 @@
+{% extends 'common/base.html' %}
+{% block content %}
+   <div class="store">
+        <p>卖家免费开店</p>
+        <div class="store_box">
+        <form method="post" action="{% url 'manager:do_openstore' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="line">
+                <label>用&nbsp;户&nbsp;名</label>
+                <input type="text" name="username" class="input"/>
+            </div>
+            <div class="line">
+                <label>店铺名称</label>
+                <input type="text" name="shop_name" class="input"/>
+            </div>
+            <div class="line">
+                <label>卖家昵称</label>
+                <input type="text" name="nickname" class="input"/>
+            </div>
+            <div class="line">
+                <label>店铺地址</label>
+                <input type="text" name="shop_address" class="input"/>
+            </div>
+            <div class="line">
+                <label>店铺logo</label>
+                <input type="file" name="shop_logo" class="input"/>
+            </div>
+            <div class="line">
+                <label></label>
+                <input type="submit" value="免费开店" class="btn"/>
+            </div>
+        </form>
+
+
+        </div>
+   </div>
+{% endblock %}

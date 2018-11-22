@@ -1,0 +1,32 @@
+{% extends 'common/base.html' %}
+{% load static %}
+{% block content %}
+    <div class="store_all">
+        <div class="store_left">
+            <ul>
+               <li style="color: #ffffff;">产品类型</li>
+                {% for type in type_list %}
+                    <li><a href="{% url 'store:store_details' %}?mid={{ manager }}&tid={{ type.type_id }}">{{ type.type_name }}</a></li>
+                {% endfor %}
+            </ul>
+
+        </div>
+        <div class="store_right">
+            {% for goods in goods_list %}
+            <dl>
+                <dt> <a href="{% url 'goods:goods_details' %}?gid={{ goods.id }}" target="_blank">
+                    <img src="{% static goods.goods_pic %}" style="width:80px"/> </a></dt>
+                <dd>
+                    <p style="font-size: 18px; font-family: '微软雅黑'; color: #2b542c"> {%if goods.goods_name|length >= 12 %}
+                            <a href="{% url 'goods:goods_details' %}?gid={{ goods.id }}" target="_blank">
+                                {{goods.goods_name|slice:"12"}}</a>...
+                    {%else%} <a href="{% url 'goods:goods_details' %}?gid={{ goods.id }}" target="_blank">
+                            {{goods.goods_name}}</a>
+                        {%endif%}</p>
+                    <p style="font-family: '微软雅黑'; font-size: 18px; line-height: 50px; color: #eb7350">￥{{ goods.goods_xprice }}元</p>
+                </dd>
+            </dl>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

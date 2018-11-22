@@ -1,0 +1,51 @@
+{% extends 'common/base_manager.html' %}
+{% block content %}
+      <div class="x-nav">
+      <span class="layui-breadcrumb">
+        <a href="">商品管理</a>
+        <a href="">商品列表</a>
+      </span>
+    </div>
+    <div class="x-body">
+      <table class="layui-table">
+        <thead>
+          <tr>
+		    <th>商品id</th>
+            <th>商品编号</th>
+            <th>商品名称</th>
+            <th>商品分类</th>
+            <th>商品原价</th>
+            <th>商品现价</th>
+            <th>商品库存</th>
+			<th>商品存储方法</th>
+            <th>操作</th>
+			</tr>
+        </thead>
+        <tbody>
+         {% for goods in list %}
+          <tr>
+            <td>{{ goods.id }}</td>
+			 <td>{{ goods.goods_num }}</td>
+            <td>{{ goods.goods_name }}</td>
+            <td>{{ goods.type.type_name }}</td>
+            <td>￥{{ goods.goods_oprice }}元</td>
+            <td>￥{{ goods.goods_xprice }}元</td>
+            <td>{{ goods.goods_count }}</td>
+			<td>{{ goods.goods_method }}</td>
+            <td >
+				<a href="{% url 'goods:goods_modify' goods.id %}">编辑</a>
+                <a href="{% url 'goods:do_goods_delete' goods.id %}">删除</a>
+                <a title="库存" onclick="x_admin_show('库存','{% url 'manager:edit_count' %}?gid={{ goods.id }}',600,400)" href="javascript:;">修改库存</a>
+            </td>
+          </tr>
+          {% empty %}
+           <tr>
+            <td colspan="8" align="center">暂无商品，快去上架!</td>
+           </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+    </div>
+
+{% endblock %}
